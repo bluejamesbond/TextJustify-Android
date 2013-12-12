@@ -7,8 +7,13 @@ This is very simple - not complicated at all. What you want to do is get the lib
 
 ```js
 
-((TextView)findViewById(R.id.textview)).setText(input);
-TextJustify.run(((TextView)findViewById(R.id.textview)), 305f); 
+ TextView tv = (TextView) findViewById(R.id.textView1);
+ ViewGroup.MarginLayoutParams lp1 = (ViewGroup.MarginLayoutParams) tv.getLayoutParams();
+	     
+ tv.setText(text);
+ TextJustify.run(tv,widthDp / FinallwidthDp * widthJustify ,
+                 tv.getPaddingLeft(),tv.getPaddingRight() , lp1.leftMargin, lp1.rightMargin);
+
 //Start from a small number like 150f and move up from there to get the exact width. 
 //I haven't fixed this problem yet. 305f works best for me in this case.
 
