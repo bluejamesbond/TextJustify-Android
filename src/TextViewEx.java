@@ -37,7 +37,9 @@ public class TextViewEx extends TextView
     private float horizontalOffset = 0;
     private float verticalOffset = 0;
     private float horizontalFontOffset = 0;
-    private float dirtyRegionWidth = 0;
+    private float dirtyRegionWidth = 0;  
+    private float marginRight = 0; // additional margin right white space
+    private float marginLeft = 0;  // additional margin left white space
     private boolean wrapEnabled = false;
     
     private float strecthOffset;
@@ -157,7 +159,7 @@ public class TextViewEx extends TextView
                 continue;
             }
             
-            wrappedObj = TextJustifyUtils.createWrappedLine(block, paint, spaceOffset, dirtyRegionWidth);
+            wrappedObj = TextJustifyUtils.createWrappedLine(block, paint, spaceOffset, dirtyRegionWidth-marginRight);
             
             wrappedLine = ((String) wrappedObj[0]);
             wrappedEdgeSpace = (Float) wrappedObj[1];
@@ -169,7 +171,7 @@ public class TextViewEx extends TextView
                 String word = lineAsWords[j];
                 if (lines == maxLines && j == lineAsWords.length - 1) 
                 {
-                    activeCanvas.drawText("...", horizontalOffset, verticalOffset, paint);
+                    activeCanvas.drawText("...", horizontalOffset + marginLeft, verticalOffset, paint);
                 } 
                 else 
                 {
