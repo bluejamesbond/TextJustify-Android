@@ -798,9 +798,9 @@ public class ConcurrentModifiableLinkedList<E>
     }
 
     private static class Entry<E> {
-        E element;
-        Entry<E> next;
-        Entry<E> previous;
+        private E element;
+        private Entry<E> next;
+        private Entry<E> previous;
 
         Entry(E element, Entry<E> next, Entry<E> previous) {
             this.element = element;
@@ -898,7 +898,7 @@ public class ConcurrentModifiableLinkedList<E>
      * Adapter to provide descending iterators via ListItr.previous
      */
     private class DescendingIterator implements Iterator {
-        final ListItr itr = new ListItr(size());
+        private final ListItr itr = new ListItr(size());
 
         public boolean hasNext() {
             return itr.hasPrevious();
