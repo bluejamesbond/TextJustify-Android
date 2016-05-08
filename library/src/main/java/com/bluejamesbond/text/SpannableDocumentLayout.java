@@ -184,7 +184,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         float lastDescent;
 
         boolean isParaStart = true;
-        boolean isReverse = params.reverse;
+        boolean isReverse;
 
         for (lineNumber = 0; lineNumber < lines; lineNumber++) {
 

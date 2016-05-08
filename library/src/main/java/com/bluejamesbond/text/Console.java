@@ -37,23 +37,23 @@ public class Console {
     }
 
     public static void log(String tag, int s) {
-        android.util.Log.d(tag, s + "");
+        android.util.Log.d(tag, Integer.toString(s));
     }
 
     public static void log(String tag, long s) {
-        android.util.Log.d(tag, s + "");
+        android.util.Log.d(tag, Long.toString(s));
     }
 
     public static void log(String tag, double s) {
-        android.util.Log.d(tag, s + "");
+        android.util.Log.d(tag, Double.toString(s));
     }
 
     public static void log(String tag, float s) {
-        android.util.Log.d(tag, s + "");
+        android.util.Log.d(tag, Float.toString(s));
     }
 
     public static void log(String tag, boolean s) {
-        android.util.Log.d(tag, s + "");
+        android.util.Log.d(tag, Boolean.toString(s));
     }
 
     public static void log(String s) {
@@ -61,23 +61,23 @@ public class Console {
     }
 
     public static void log(int s) {
-        android.util.Log.d("", s + "");
+        android.util.Log.d("", Integer.toString(s));
     }
 
     public static void log(long s) {
-        android.util.Log.d("", s + "");
+        android.util.Log.d("", Long.toString(s));
     }
 
     public static void log(double s) {
-        android.util.Log.d("", s + "");
+        android.util.Log.d("", Double.toString(s));
     }
 
     public static void log(float s) {
-        android.util.Log.d("", s + "");
+        android.util.Log.d("", Float.toString(s));
     }
 
     public static void log(boolean s) {
-        android.util.Log.d("", s + "");
+        android.util.Log.d("", Boolean.toString(s));
     }
 
     public static <T> void log(T s) {

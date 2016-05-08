@@ -284,7 +284,7 @@ public class DefaultHyphenator implements IHyphenator {
     }
 
     private class TrieNode {
-        Map<Integer, TrieNode> codePoint = new HashMap<Integer,TrieNode>();
-        int[] points;
+        private Map<Integer, TrieNode> codePoint = new HashMap<Integer,TrieNode>();
+        private int[] points;
     }
 }

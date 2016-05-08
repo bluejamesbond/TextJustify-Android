@@ -129,7 +129,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
 
             // Allow leading spaces
             int start = 0;
-            int overallCounter = 0;
+            int overallCounter;
 
             ConcurrentModifiableLinkedList<Unit> units = tokenize(paragraph);
             ListIterator<Unit> unitIterator = units.listIterator();
