@@ -86,7 +86,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         // Get basic settings widget properties
         int lineNumber = 0;
         float width = params.parentWidth - params.insetPaddingRight - params.insetPaddingLeft;
-        float lineHeight = getTokenAscent(0) + getTokenDescent(0);
+        float lineHeight = getTokenAscent(0) + getTokenDescent(0) + params.lineSpacingExtra;
         float x, prog = 0, chunksLen = chunks.size();
         float y = params.insetPaddingTop + getTokenAscent(0);
         float spaceOffset = paint.measureText(" ") * params.wordSpacingMultiplier;
@@ -121,6 +121,18 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
 
             // Line fits, then don't wrap
             if (wrappedWidth < width) {
+                float remainWidth = width - wrappedWidth;
+                switch (params.textAlignment) {
+                    case CENTER: {
+                        x += remainWidth / 2;
+                        break;
+                    }
+                    case RIGHT: {
+                        x += remainWidth;
+                        break;
+                    }
+                }
+
                 // activeCanvas.drawText(paragraph, x, y, paint);
                 tokensList.add(new SingleLine(lineNumber++, x, y, trimParagraph));
                 y += lineHeight;
@@ -224,7 +236,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         lineCount = lineNumber;
         tokens = tokensArr;
         params.changed = !done;
-        measuredHeight = (int) (y - getTokenAscent(0) + params.insetPaddingBottom);
+        measuredHeight = (int) (y - getTokenAscent(0) + params.insetPaddingBottom - params.lineSpacingExtra);
         return done;
     }
 

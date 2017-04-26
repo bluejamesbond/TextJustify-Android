@@ -70,6 +70,7 @@ public abstract class IDocumentLayout {
 
         params = new LayoutParams();
         params.setLineHeightMultiplier(1.0f);
+        params.setLineSpacingExtra(0.0f);
         params.setHyphenated(false);
         params.setReverse(false);
     }
@@ -185,32 +186,33 @@ public abstract class IDocumentLayout {
          * All the customizable parameters
          */
         protected IHyphenator hyphenator = null;
-        protected Float insetPaddingLeft = 0.0f;
-        protected Float insetPaddingTop = 0.0f;
-        protected Float insetPaddingBottom = 0.0f;
-        protected Float insetPaddingRight = 0.0f;
-        protected Float parentWidth = 800.0f;
-        protected Float offsetX = 0.0f;
-        protected Float offsetY = 0.0f;
+        protected float insetPaddingLeft = 0.0f;
+        protected float insetPaddingTop = 0.0f;
+        protected float insetPaddingBottom = 0.0f;
+        protected float insetPaddingRight = 0.0f;
+        protected float parentWidth = 800.0f;
+        protected float offsetX = 0.0f;
+        protected float offsetY = 0.0f;
 
-        protected Boolean debugging = false;
-        protected Float wordSpacingMultiplier = 1.0f;
-        protected Float lineHeightMultiplier = 0.0f;
-        protected Boolean hyphenated = false;
-        protected Boolean reverse = false;
-        protected Boolean subpixelText = false;
-        protected Boolean antialias = false;
-        protected Integer maxLines = Integer.MAX_VALUE;
+        protected boolean debugging = false;
+        protected float wordSpacingMultiplier = 1.0f;
+        protected float lineSpacingExtra = 0.0f;
+        protected float lineHeightMultiplier = 0.0f;
+        protected boolean hyphenated = false;
+        protected boolean reverse = false;
+        protected boolean subpixelText = false;
+        protected boolean antialias = false;
+        protected int maxLines = Integer.MAX_VALUE;
         protected String hyphen = "-";
         protected TextAlignment textAlignment = TextAlignment.LEFT;
 
-        protected Boolean textUnderline = false;
-        protected Boolean textStrikeThru = false;
-        protected Boolean textFakeBold = false;
+        protected boolean textUnderline = false;
+        protected boolean textStrikeThru = false;
+        protected boolean textFakeBold = false;
         protected Typeface textTypeface = Typeface.DEFAULT;
-        protected Float rawTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, displayMetrics);
-        protected Integer textColor = Color.BLACK;
-        protected Integer textLinkColor = Color.parseColor("#ff05c5cf");
+        protected float rawTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, displayMetrics);
+        protected int textColor = Color.BLACK;
+        protected int textLinkColor = Color.parseColor("#ff05c5cf");
 
         /**
          * If any settings have changed.
@@ -241,7 +243,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setWordSpacingMultiplier(float wordSpacingMultiplier) {
-            if (this.wordSpacingMultiplier.equals(wordSpacingMultiplier)) {
+            if (floatEquals(this.wordSpacingMultiplier, wordSpacingMultiplier)) {
                 return;
             }
 
@@ -284,7 +286,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setInsetPaddingLeft(float insetPaddingLeft) {
-            if (this.insetPaddingLeft.equals(insetPaddingLeft)) {
+            if (floatEquals(this.insetPaddingLeft, insetPaddingLeft)) {
                 return;
             }
 
@@ -297,7 +299,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setInsetPaddingTop(float insetPaddingTop) {
-            if (this.insetPaddingTop.equals(insetPaddingTop)) {
+            if (floatEquals(this.insetPaddingTop, insetPaddingTop)) {
                 return;
             }
 
@@ -310,7 +312,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setInsetPaddingBottom(float insetPaddingBottom) {
-            if (this.insetPaddingBottom.equals(insetPaddingBottom)) {
+            if (floatEquals(this.insetPaddingBottom, insetPaddingBottom)) {
                 return;
             }
 
@@ -323,7 +325,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setInsetPaddingRight(float insetPaddingRight) {
-            if (this.insetPaddingRight.equals(insetPaddingRight)) {
+            if (floatEquals(this.insetPaddingRight, insetPaddingRight)) {
                 return;
             }
 
@@ -336,7 +338,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setParentWidth(float parentWidth) {
-            if (this.parentWidth.equals(parentWidth)) {
+            if (floatEquals(this.parentWidth, parentWidth)) {
                 return;
             }
 
@@ -364,12 +366,25 @@ public abstract class IDocumentLayout {
             return lineHeightMultiplier;
         }
 
+        public float getLineSpacingExtra() {
+            return lineSpacingExtra;
+        }
+
         public void setLineHeightMultiplier(float lineHeightMultiplier) {
-            if (this.lineHeightMultiplier.equals(lineHeightMultiplier)) {
+            if (floatEquals(this.lineHeightMultiplier, lineHeightMultiplier)) {
                 return;
             }
 
             this.lineHeightMultiplier = lineHeightMultiplier;
+            invalidate();
+        }
+
+        public void setLineSpacingExtra(float lineSpacingExtra) {
+            if (floatEquals(this.lineSpacingExtra, lineSpacingExtra)) {
+                return;
+            }
+
+            this.lineSpacingExtra = lineSpacingExtra;
             invalidate();
         }
 
@@ -378,7 +393,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setHyphenated(boolean hyphenated) {
-            if (this.hyphenated.equals(hyphenated)) {
+            if (this.hyphenated == hyphenated) {
                 return;
             }
 
@@ -391,10 +406,9 @@ public abstract class IDocumentLayout {
         }
 
         public void setReverse(boolean reverse) {
-            if (this.reverse.equals(reverse)) {
+            if (this.reverse == reverse) {
                 return;
             }
-
 
             this.reverse = reverse;
             invalidate();
@@ -405,7 +419,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setMaxLines(int maxLines) {
-            if (this.maxLines.equals(maxLines)) {
+            if (this.maxLines == maxLines) {
                 return;
             }
 
@@ -440,7 +454,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setTextUnderline(boolean underline) {
-            if (this.textUnderline.equals(underline)) {
+            if (this.textUnderline == underline) {
                 return;
             }
 
@@ -453,7 +467,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setTextStrikeThru(boolean strikeThru) {
-            if (this.textStrikeThru.equals(strikeThru)) {
+            if (this.textStrikeThru == strikeThru) {
                 return;
             }
 
@@ -466,7 +480,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setTextFakeBold(boolean fakeBold) {
-            if (this.textFakeBold.equals(fakeBold)) {
+            if (this.textFakeBold == fakeBold) {
                 return;
             }
 
@@ -500,7 +514,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setRawTextSize(float textSize) {
-            if (this.rawTextSize.equals(textSize)) {
+            if (floatEquals(this.rawTextSize, textSize)) {
                 return;
             }
 
@@ -513,7 +527,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setTextColor(int textColor) {
-            if (this.textColor.equals(textColor)) {
+            if (this.textColor == textColor) {
                 return;
             }
 
@@ -526,7 +540,7 @@ public abstract class IDocumentLayout {
         }
 
         public void setDebugging(Boolean debugging) {
-            if (this.debugging.equals(debugging)) {
+            if (this.debugging == debugging) {
                 return;
             }
 
@@ -540,7 +554,7 @@ public abstract class IDocumentLayout {
 
         public void setTextSubPixel(boolean subpixelText) {
 
-            if (this.subpixelText.equals(subpixelText)) {
+            if (this.subpixelText == subpixelText) {
                 return;
             }
 
@@ -553,11 +567,17 @@ public abstract class IDocumentLayout {
 
         public void setAntialias(boolean antialias) {
 
-            if (this.antialias.equals(antialias)) {
+            if (this.antialias == antialias) {
                 return;
             }
 
             this.antialias = antialias;
         }
+
     }
+
+    private static boolean floatEquals(float a, float b) {
+        return Float.floatToIntBits(a) == Float.floatToIntBits(b);
+    }
+
 }
