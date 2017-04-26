@@ -133,6 +133,10 @@
 			android:name="com.bluejamesbond.text.sample.test.SingleWordTest"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@android:style/Theme.NoTitleBar" />
-    </application>
+		<activity
+			android:name="com.bluejamesbond.text.sample.test.LineSpacingTest"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@android:style/Theme.NoTitleBar" />
+	</application>
 
 </manifest>

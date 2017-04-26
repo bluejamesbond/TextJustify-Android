@@ -161,7 +161,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         mLeadMarginSpanDrawEvents = new LinkedList<>();
 
         StaticLayout staticLayout = new StaticLayout(getText(), (TextPaint) getPaint(),
-                (int) boundWidth, Layout.Alignment.ALIGN_NORMAL, 1, 0, false);
+                (int) boundWidth, Layout.Alignment.ALIGN_NORMAL, params.getLineHeightMultiplier(), params.getLineSpacingExtra(), false);
         int[] newTokens = new int[TOKEN_LENGTH * 1000];
         LeadingMarginSpan[] activeLeadSpans = new LeadingMarginSpan[0];
         HashMap<LeadingMarginSpan, Integer> leadSpans = new HashMap<>();
@@ -179,7 +179,6 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         float y = params.insetPaddingTop;
         float left = params.insetPaddingLeft;
         float right = params.insetPaddingRight;
-        float lineHeightAdd = params.lineHeightMultiplier;
         float lastAscent;
         float lastDescent;
 
@@ -221,7 +220,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
 
             // Calculate components of line height
             lastAscent = -staticLayout.getLineAscent(lineNumber);
-            lastDescent = staticLayout.getLineDescent(lineNumber) + lineHeightAdd;
+            lastDescent = staticLayout.getLineDescent(lineNumber);
 
             // Handle reverse
             DirectionSpan[] directionSpans = textCpy.getSpans(start, end, DirectionSpan.class);
@@ -467,7 +466,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         tokens = newTokens;
         params.changed = false;
         textChange = !done;
-        measuredHeight = (int) (y - lineHeightAdd + params.insetPaddingBottom);
+        measuredHeight = (int) (y + params.insetPaddingBottom);
 
         return done;
     }

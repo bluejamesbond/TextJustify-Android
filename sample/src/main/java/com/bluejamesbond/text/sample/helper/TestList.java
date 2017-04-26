@@ -51,6 +51,7 @@ import com.bluejamesbond.text.sample.test.HyphenatedTest;
 import com.bluejamesbond.text.sample.test.ImageSpanTest;
 import com.bluejamesbond.text.sample.test.LeadingMarginSpan2Test;
 import com.bluejamesbond.text.sample.test.LineBreakTest;
+import com.bluejamesbond.text.sample.test.LineSpacingTest;
 import com.bluejamesbond.text.sample.test.ListViewTest;
 import com.bluejamesbond.text.sample.test.LongFormattedTextTest;
 import com.bluejamesbond.text.sample.test.LongPlainTextTest;
@@ -89,7 +90,8 @@ public class TestList extends TestActivity {
             ImageSpanTest.class,
             TextUpdateTest.class,
             ForceNoCacheXMLTest.class,
-            SingleWordTest.class
+            SingleWordTest.class,
+            LineSpacingTest.class
     };
 
     @Override

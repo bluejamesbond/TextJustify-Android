@@ -296,6 +296,8 @@ public class DocumentView extends ScrollView {
                     layoutParams.setMaxLines(a.getInt(attr, layoutParams.getMaxLines()));
                 } else if (attr == R.styleable.DocumentView_documentView_lineHeightMultiplier) {
                     layoutParams.setLineHeightMultiplier(a.getFloat(attr, layoutParams.getLineHeightMultiplier()));
+                } else if (attr == R.styleable.DocumentView_documentView_lineSpacingExtra) {
+                    layoutParams.setLineSpacingExtra(a.getDimension(attr, layoutParams.getLineSpacingExtra()));
                 } else if (attr == R.styleable.DocumentView_documentView_textAlignment) {
                     layoutParams.setTextAlignment(TextAlignment.getById(a.getInt(attr, layoutParams.getTextAlignment().getId())));
                 } else if (attr == R.styleable.DocumentView_documentView_reverse) {
@@ -395,7 +397,7 @@ public class DocumentView extends ScrollView {
         }
     }
 
-    public View getViewportView(){
+    public View getViewportView() {
         return viewportView;
     }
 
@@ -473,7 +475,7 @@ public class DocumentView extends ScrollView {
                 viewportView.setMinimumHeight(layout.getMeasuredHeight());
                 measureState = MeasureTaskState.FINISH_AWAIT;
 
-                if(cacheConfig != CacheConfig.NO_CACHE){
+                if (cacheConfig != CacheConfig.NO_CACHE) {
                     allocateResources();
                 }
 

@@ -41,6 +41,7 @@
         <attr name="documentView_offsetY" format="dimension"/>
         <attr name="documentView_wordSpacingMultiplier" format="float"/>
         <attr name="documentView_lineHeightMultiplier" format="float"/>
+		<attr name="documentView_lineSpacingExtra" format="dimension"/>
         <attr name="documentView_reverse" format="boolean"/>
         <attr name="documentView_maxLines" format="integer"/>
         <attr name="documentView_hyphen" format="string"/>
