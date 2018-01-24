@@ -59,6 +59,7 @@ import com.bluejamesbond.text.sample.test.NewLineTest;
 import com.bluejamesbond.text.sample.test.QuoteSpanTest;
 import com.bluejamesbond.text.sample.test.RTLTest;
 import com.bluejamesbond.text.sample.test.ShortFormattedTextTest;
+import com.bluejamesbond.text.sample.test.SingleWordTest;
 import com.bluejamesbond.text.sample.test.TextUpdateTest;
 import com.bluejamesbond.text.sample.test.TextViewTest;
 import com.bluejamesbond.text.sample.test.WordSpacingTest;
@@ -87,7 +88,8 @@ public class TestList extends TestActivity {
             ShortFormattedTextTest.class,
             ImageSpanTest.class,
             TextUpdateTest.class,
-            ForceNoCacheXMLTest.class
+            ForceNoCacheXMLTest.class,
+            SingleWordTest.class
     };
 
     @Override

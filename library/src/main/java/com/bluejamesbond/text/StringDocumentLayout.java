@@ -121,6 +121,18 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
 
             // Line fits, then don't wrap
             if (wrappedWidth < width) {
+                float remainWidth = width - wrappedWidth;
+                switch (params.textAlignment) {
+                    case CENTER: {
+                        x += remainWidth / 2;
+                        break;
+                    }
+                    case RIGHT: {
+                        x += remainWidth;
+                        break;
+                    }
+                }
+
                 // activeCanvas.drawText(paragraph, x, y, paint);
                 tokensList.add(new SingleLine(lineNumber++, x, y, trimParagraph));
                 y += lineHeight;
