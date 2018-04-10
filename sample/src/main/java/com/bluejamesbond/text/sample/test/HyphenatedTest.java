@@ -33,7 +33,6 @@ import android.os.Bundle;
 
 import com.bluejamesbond.text.DocumentView;
 import com.bluejamesbond.text.hyphen.DefaultHyphenator;
-import com.bluejamesbond.text.hyphen.DefaultHyphenator.HyphenPattern;
 import com.bluejamesbond.text.sample.helper.TestActivity;
 import com.bluejamesbond.text.style.TextAlignment;
 
@@ -51,7 +50,7 @@ public class HyphenatedTest extends TestActivity {
                 .toString(), DocumentView.PLAIN_TEXT);
 
         documentView.getDocumentLayoutParams().setTextAlignment(TextAlignment.JUSTIFIED);
-        documentView.getDocumentLayoutParams().setHyphenator(DefaultHyphenator.getInstance(HyphenPattern.PT));
+        documentView.getDocumentLayoutParams().setHyphenator(DefaultHyphenator.getInstance(com.bluejamesbond.text.R.raw.pt, this));
         documentView.getDocumentLayoutParams().setHyphenated(true);
     }
 }
