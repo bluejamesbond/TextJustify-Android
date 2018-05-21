@@ -49,10 +49,12 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.bluejamesbond.text.style.TextAlignment;
+import com.bluejamesbond.text.util.Pagination;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -96,6 +98,7 @@ public class DocumentView extends ScrollView {
     private CacheBitmap cacheBitmapTop;
     private CacheBitmap cacheBitmapBottom;
     private boolean disallowInterceptTouch;
+    private boolean paginated;
 
     public DocumentView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -164,6 +167,11 @@ public class DocumentView extends ScrollView {
 
         // Return largest texture size found, or default
         return Math.max(maximumTextureSize, GL_MAX_TEXTURE_SIZE);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return !paginated && super.onInterceptTouchEvent(ev);
     }
 
     public boolean isDisallowInterceptTouch() {
@@ -438,8 +446,8 @@ public class DocumentView extends ScrollView {
     }
 
     public void setText(CharSequence text) {
-        this.layout.setText(text);
-        requestLayout();
+        this.text = text;
+        layout.setText(text);
     }
 
     public StringDocumentLayout.LayoutParams getDocumentLayoutParams() {
@@ -496,7 +504,7 @@ public class DocumentView extends ScrollView {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         requestDisallowInterceptTouchEvent(disallowInterceptTouch);
-        return super.onTouchEvent(ev);
+        return !paginated && super.onTouchEvent(ev);
     }
 
     @Override
@@ -545,6 +553,29 @@ public class DocumentView extends ScrollView {
         super.onConfigurationChanged(newConfig);
     }
 
+    public boolean isPaginated() {
+        return paginated;
+    }
+
+    public void setPaginated(final boolean paginated) {
+
+        if (this.paginated == paginated) {
+            return;
+        }
+
+        this.paginated = paginated;
+        invalidate();
+    }
+
+    @Override
+    public void invalidate() {
+        onDocumentViewParamsChanged();
+        super.invalidate();
+    }
+
+    protected void onDocumentViewParamsChanged() {
+        setVerticalScrollBarEnabled(!paginated);
+    }
 
     @SuppressLint("DrawAllocation")
     @Override
