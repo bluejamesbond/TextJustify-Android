@@ -50,6 +50,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
+            android:name=".test.PaginatedFormattedTextTest"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
             android:name="com.bluejamesbond.text.sample.test.LeadingMarginSpan2Test"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
