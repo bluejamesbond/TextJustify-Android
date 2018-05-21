@@ -51,22 +51,17 @@ public abstract class IDocumentLayout {
     // Main content
     protected CharSequence text;
     protected int lineCount;
+    protected int tokensCount;
     protected int measuredHeight;
     protected boolean textChange;
     protected LayoutParams params;
     protected TextPaint paint;
-    private Toast toast;
+    private Context context;
     private DisplayMetrics displayMetrics;
 
     @SuppressLint("ShowToast")
     public IDocumentLayout(Context context, TextPaint textPaint) {
-        paint = textPaint;
-        text = "";
-        measuredHeight = 0;
-        lineCount = 0;
-        textChange = false;
-        displayMetrics = context.getResources().getDisplayMetrics();
-        toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+        initDocumentLayout(context, textPaint);
 
         params = new LayoutParams();
         params.setLineHeightMultiplier(1.0f);
@@ -74,9 +69,23 @@ public abstract class IDocumentLayout {
         params.setReverse(false);
     }
 
+    private void initDocumentLayout(Context context, TextPaint textPaint) {
+        paint = textPaint;
+        text = "";
+        measuredHeight = 0;
+        lineCount = 0;
+        tokensCount = 0;
+        textChange = false;
+        displayMetrics = context.getResources().getDisplayMetrics();
+        this.context = context;
+    }
+
     protected void showToast(String s) {
-        toast.setText(s);
-        toast.show();
+        Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+    }
+
+    public int getTokensCount() {
+        return tokensCount;
     }
 
     public Paint getPaint() {
@@ -101,6 +110,7 @@ public abstract class IDocumentLayout {
         this.text = text;
         this.textChange = true;
 
+        this.tokensCount = 0;
         onTextChange();
     }
 
@@ -110,6 +120,7 @@ public abstract class IDocumentLayout {
 
     protected void onTextNull() {
         params.changed = false;
+        tokensCount = 0;
         measuredHeight = (int) (params.insetPaddingTop + params.insetPaddingBottom);
     }
 
