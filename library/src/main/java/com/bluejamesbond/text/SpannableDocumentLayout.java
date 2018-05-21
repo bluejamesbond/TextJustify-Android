@@ -496,18 +496,6 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
                     parameters.end, parameters.first, null);
         }
 
-        int lastEndIndexY = tokens[endIndex + TOKEN_Y];
-        int diffEndIndexYCount = 1;
-
-        // FIXME Find next pos-y
-        for (int s = endIndex; diffEndIndexYCount > 0 && s < tokens.length; s += TOKEN_LENGTH) {
-            endIndex += TOKEN_LENGTH;
-            if (lastEndIndexY != tokens[s + TOKEN_Y]) {
-                diffEndIndexYCount--;
-                lastEndIndexY = tokens[s + TOKEN_Y];
-            }
-        }
-
         for (int index = startIndex; index < endIndex; index += TOKEN_LENGTH) {
             if (tokens[index + TOKEN_START] == Integer.MAX_VALUE) break;
             DirectionSpan[] directionSpans = textCpy.getSpans(tokens[index + TOKEN_START], tokens[index + TOKEN_END], DirectionSpan.class);
