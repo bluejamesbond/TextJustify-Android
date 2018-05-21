@@ -56,6 +56,7 @@ import com.bluejamesbond.text.sample.test.LongFormattedTextTest;
 import com.bluejamesbond.text.sample.test.LongPlainTextTest;
 import com.bluejamesbond.text.sample.test.MixedRTLTest;
 import com.bluejamesbond.text.sample.test.NewLineTest;
+import com.bluejamesbond.text.sample.test.PaginatedFormattedTextTest;
 import com.bluejamesbond.text.sample.test.QuoteSpanTest;
 import com.bluejamesbond.text.sample.test.RTLTest;
 import com.bluejamesbond.text.sample.test.ShortFormattedTextTest;
@@ -69,6 +70,7 @@ public class TestList extends TestActivity {
     private Class[] tests = new Class[]{
             ChineseCharacterTest.class,
             LongFormattedTextTest.class,
+            PaginatedFormattedTextTest.class,
             NewLineTest.class,
             LeadingMarginSpan2Test.class,
             LineBreakTest.class,
