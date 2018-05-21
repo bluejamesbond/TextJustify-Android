@@ -218,6 +218,8 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         }
 
         Token[] tokensArr = new Token[tokensList.size()];
+        tokensCount = tokensList.size();
+
         tokensList.toArray(tokensArr);
         tokensList.clear();
 
