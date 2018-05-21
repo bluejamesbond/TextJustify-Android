@@ -492,6 +492,7 @@ public class DocumentView extends ScrollView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         requestDisallowInterceptTouchEvent(disallowInterceptTouch);
@@ -674,13 +675,13 @@ public class DocumentView extends ScrollView {
         }
     }
 
-    public static enum CacheConfig {
+    public enum CacheConfig {
         NO_CACHE(null, 0), AUTO_QUALITY(Config.ARGB_4444, 1), LOW_QUALITY(Config.RGB_565, 2), HIGH_QUALITY(Config.ARGB_8888, 3), GRAYSCALE(Config.ALPHA_8, 4);
 
         private final Config mConfig;
         private final int mId;
 
-        private CacheConfig(Config config, int id) {
+        CacheConfig(Config config, int id) {
             mConfig = config;
             mId = id;
         }
@@ -714,26 +715,24 @@ public class DocumentView extends ScrollView {
         AWAIT, FINISH, START, FINISH_AWAIT
     }
 
-    public static interface ILayoutProgressListener {
-        public void onCancelled();
-
-        public void onFinish();
-
-        public void onStart();
-
-        public void onProgressUpdate(float progress);
+    public interface ILayoutProgressListener {
+        void onCancelled();
+        void onFinish();
+        void onStart();
+        void onProgressUpdate(float progress);
     }
 
-    public static interface ITween {
-        public float get(float t, float b, float c, float d);
+    public interface ITween {
+        float get(float t, float b, float c, float d);
     }
 
+    @SuppressLint("StaticFieldLeak")
     public class MeasureTask extends AsyncTask<Void, Float, Boolean> {
 
         private IDocumentLayout.IProgress<Float> progress;
         private IDocumentLayout.ICancel<Boolean> cancelled;
 
-        public MeasureTask(float parentWidth) {
+        public MeasureTask(float parentWidth, int parentHeight) {
             layout.getLayoutParams().setParentWidth(parentWidth);
             progress = new IDocumentLayout.IProgress<Float>() {
                 @Override
@@ -767,7 +766,6 @@ public class DocumentView extends ScrollView {
                 layoutProgressListener.onStart();
             }
         }
-
 
         @Override
         protected void onPostExecute(Boolean done) {
@@ -860,6 +858,7 @@ public class DocumentView extends ScrollView {
             }
         }
 
+        @SuppressLint("StaticFieldLeak")
         public class CacheDrawTask extends AsyncTask<Void, Void, Void> {
             private Runnable drawRunnable;
 
