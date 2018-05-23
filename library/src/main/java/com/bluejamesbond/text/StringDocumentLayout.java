@@ -265,6 +265,11 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
     }
 
     @Override
+    public int getTokensCount() {
+        return tokensCount;
+    }
+
+    @Override
     public float getTokenAscent(int tokenIndex) {
         return -paint.ascent() * params.lineHeightMultiplier;
     }
