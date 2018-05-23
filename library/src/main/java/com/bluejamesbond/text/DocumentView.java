@@ -221,6 +221,24 @@ public class DocumentView extends ScrollView {
         }
     }
 
+    public int turnPageBackward() {
+        currentPage = currentPage > startPage ? currentPage - 1 : currentPage;
+        turnPage(currentPage);
+        return currentPage;
+    }
+
+    public int turnPageForward() {
+        currentPage = currentPage < pagination.size() ? currentPage + 1 : currentPage;
+        turnPage(currentPage);
+        return currentPage;
+    }
+
+    public void turnPage(int page) {
+        if (startPage > page) throw new AssertionError();
+        currentPage = page;
+        paginate();
+    }
+
     public int getFadeInAnimationStepDelay() {
         return fadeInAnimationStepDelay;
     }
