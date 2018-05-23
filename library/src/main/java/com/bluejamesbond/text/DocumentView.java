@@ -101,6 +101,8 @@ public class DocumentView extends ScrollView {
     private boolean paginated;
     private Pagination pagination;
     private int currentPage;
+    private int startPage = 0;
+    ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener;
     CharSequence text;
 
     public DocumentView(Context context, AttributeSet attrs, int defStyle) {
@@ -576,6 +578,35 @@ public class DocumentView extends ScrollView {
         }
 
         this.paginated = paginated;
+
+        if (paginated) {
+            pagination = new Pagination(layout, 0);
+
+            onGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+
+                    pagination.setPageHeight(((View) getParent()).getHeight());
+                }
+            };
+
+            getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
+            } else {
+                getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+            }
+
+            onGlobalLayoutListener = null;
+            pagination = null;
+        }
+
         invalidate();
     }
 
