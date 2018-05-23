@@ -99,6 +99,9 @@ public class DocumentView extends ScrollView {
     private CacheBitmap cacheBitmapBottom;
     private boolean disallowInterceptTouch;
     private boolean paginated;
+    private Pagination pagination;
+    private int currentPage;
+    CharSequence text;
 
     public DocumentView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -238,6 +241,14 @@ public class DocumentView extends ScrollView {
 
     public void setFadeInTween(ITween tween) {
         fadeInTween = tween;
+    }
+
+    private void paginate() {
+        final CharSequence text = pagination.get(currentPage);
+        if(text != null) {
+            layout.textChange = !layout.text.equals(text);
+            layout.text = text;
+        }
     }
 
     private void initDocumentView(Context context, AttributeSet attrs, int type) {
@@ -470,6 +481,7 @@ public class DocumentView extends ScrollView {
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         final int width = MeasureSpec.getSize(widthMeasureSpec);
+        final int height = layout.getMeasuredHeight();
 
         switch (measureState) {
             case FINISH_AWAIT:
@@ -478,7 +490,7 @@ public class DocumentView extends ScrollView {
                 break;
             case FINISH:
                 viewportView.setMinimumWidth(width);
-                viewportView.setMinimumHeight(layout.getMeasuredHeight());
+                viewportView.setMinimumHeight(height);
                 measureState = MeasureTaskState.FINISH_AWAIT;
 
                 if(cacheConfig != CacheConfig.NO_CACHE){
@@ -491,7 +503,7 @@ public class DocumentView extends ScrollView {
                     measureTask.cancel(true);
                     measureTask = null;
                 }
-                measureTask = new MeasureTask(width);
+                measureTask = new MeasureTask(width, height);
                 measureTask.execute();
                 measureState = MeasureTaskState.AWAIT;
                 break;
@@ -649,7 +661,7 @@ public class DocumentView extends ScrollView {
             }
 
         } else {
-            drawLayout(canvas, 0, layout.getMeasuredHeight(), false);
+            drawLayout(canvas, 0, paginated ? pagination.getPageHeight() : layout.getMeasuredHeight(), false);
         }
     }
 
@@ -784,7 +796,15 @@ public class DocumentView extends ScrollView {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                return layout.measure(progress, cancelled);
+                layout.textChange = text != layout.text;
+                layout.text = text;
+                boolean result = layout.measure(progress, cancelled);
+                if (result && paginated) {
+                    pagination = new Pagination(layout, ((View) getParent()).getMeasuredHeight());
+                    pagination.layout();
+                    paginate();
+                }
+                return result;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
