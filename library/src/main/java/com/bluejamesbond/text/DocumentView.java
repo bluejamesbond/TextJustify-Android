@@ -105,6 +105,20 @@ public class DocumentView extends ScrollView {
     ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener;
     CharSequence text;
 
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setStartPage(int startPage) {
+        if (startPage == this.startPage) {
+            return;
+        }
+
+        currentPage = currentPage - this.startPage + startPage;
+        this.startPage = startPage;
+        paginate();
+    }
+
     public DocumentView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initDocumentView(context, attrs, PLAIN_TEXT);
@@ -636,6 +650,10 @@ public class DocumentView extends ScrollView {
 
     protected void onDocumentViewParamsChanged() {
         setVerticalScrollBarEnabled(!paginated);
+    }
+
+    public int getPageCount() {
+        return pagination.size();
     }
 
     @SuppressLint("DrawAllocation")
