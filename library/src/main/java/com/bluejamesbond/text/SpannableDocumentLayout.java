@@ -71,6 +71,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
 
     private int pushToken(int[] tokens, int index, int start, int end, float x, float y,
                                  float ascent, float descent, int line) {
+
         Assert.assertTrue(index % TOKEN_LENGTH == 0);
 
         tokensCount++;
@@ -494,6 +495,18 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
                     parameters.dir, top, parameters.baseline,
                     bottom, textCpy, parameters.start,
                     parameters.end, parameters.first, null);
+        }
+
+        int lastEndIndexY = tokens[endIndex + TOKEN_Y];
+        int diffEndIndexYCount = 1;
+
+        // FIXME Find next pos-y
+        for (int s = endIndex; diffEndIndexYCount > 0 && s < tokens.length; s += TOKEN_LENGTH) {
+            endIndex += TOKEN_LENGTH;
+            if (lastEndIndexY != tokens[s + TOKEN_Y]) {
+                diffEndIndexYCount--;
+                lastEndIndexY = tokens[s + TOKEN_Y];
+            }
         }
 
         for (int index = startIndex; index < endIndex; index += TOKEN_LENGTH) {
