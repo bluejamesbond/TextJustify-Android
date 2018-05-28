@@ -1,5 +1,6 @@
 package com.bluejamesbond.text;
 
+import java.lang.reflect.Array;
 import java.util.AbstractSequentialList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class ConcurrentModifiableLinkedList<E>
         extends AbstractSequentialList<E>
         implements List<E>, Cloneable, java.io.Serializable {
     private static final long serialVersionUID = 876323262645176354L;
-    private transient Entry<E> header = new Entry<E>(null, null, null);
+    private transient Entry<E> header = new Entry<>(null, null, null);
     private transient int size = 0;
 
     /**
@@ -337,18 +338,19 @@ public class ConcurrentModifiableLinkedList<E>
      * @throws NullPointerException if the specified array is null
      */
     public <T> T[] toArray(T[] a) {
-        if (a.length < size)
-            a = (T[]) java.lang.reflect.Array.newInstance(
-                    a.getClass().getComponentType(), size);
+        T[] ts = a;
+        if (ts.length < size)
+            ts = (T[]) Array.newInstance(
+                    ts.getClass().getComponentType(), size);
         int i = 0;
-        Object[] result = a;
+        Object[] result = ts;
         for (Entry<E> e = header.next; e != header; e = e.next)
             result[i++] = e.element;
 
-        if (a.length > size)
-            a[size] = null;
+        if (ts.length > size)
+            ts[size] = null;
 
-        return a;
+        return ts;
     }
 
     /**
@@ -394,8 +396,8 @@ public class ConcurrentModifiableLinkedList<E>
 
         Entry<E> successor = (index == size ? header : entry(index));
         Entry<E> predecessor = successor.previous;
-        for (int i = 0; i < numNew; i++) {
-            Entry<E> e = new Entry<E>((E) a[i], successor, predecessor);
+        for (Object el: a) {
+            Entry<E> e = new Entry<>((E) el, successor, predecessor);
             predecessor.next = e;
             predecessor = e;
         }
@@ -698,8 +700,9 @@ public class ConcurrentModifiableLinkedList<E>
         return false;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private Entry<E> addBefore(E e, Entry<E> entry) {
-        Entry<E> newEntry = new Entry<E>(e, entry, entry.previous);
+        Entry<E> newEntry = new Entry<>(e, entry, entry.previous);
         newEntry.previous.next = newEntry;
         newEntry.next.previous = newEntry;
         size++;
@@ -734,8 +737,8 @@ public class ConcurrentModifiableLinkedList<E>
      *
      * @return a shallow copy of this LinkedList instance
      */
-    public Object clone() {
-        ConcurrentModifiableLinkedList<E> clone = null;
+    public ConcurrentModifiableLinkedList clone() {
+        ConcurrentModifiableLinkedList<E> clone;
         try {
             clone = (ConcurrentModifiableLinkedList<E>) super.clone();
         } catch (CloneNotSupportedException e) {
@@ -743,7 +746,7 @@ public class ConcurrentModifiableLinkedList<E>
         }
 
         // Put clone into "virgin" state
-        clone.header = new Entry<E>(null, null, null);
+        clone.header = new Entry<>(null, null, null);
         clone.header.next = clone.header.previous = clone.header;
         clone.size = 0;
         clone.modCount = 0;
@@ -789,7 +792,7 @@ public class ConcurrentModifiableLinkedList<E>
         int size = s.readInt();
 
         // Initialize header
-        header = new Entry<E>(null, null, null);
+        header = new Entry<>(null, null, null);
         header.next = header.previous = header;
 
         // Read in all elements in the proper order.

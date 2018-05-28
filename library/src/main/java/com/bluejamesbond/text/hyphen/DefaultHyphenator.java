@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /*
@@ -55,7 +56,7 @@ public class DefaultHyphenator implements IHyphenator {
     private static final HashMap<HyphenPattern, DefaultHyphenator> cached;
 
     static {
-        cached = new HashMap<HyphenPattern, DefaultHyphenator>();
+        cached = new HashMap<>();
     }
 
     private TrieNode trie;
@@ -104,7 +105,7 @@ public class DefaultHyphenator implements IHyphenator {
                     t = t.codePoint.get(codePoint);
                 }
 
-                List<Integer> list = new ArrayList<Integer>();
+                List<Integer> list = new ArrayList<>();
                 int digitStart = -1;
                 for (int p = 0; p < pattern.length(); p++) {
                     if (Character.isDigit(pattern.charAt(p))) {
@@ -139,7 +140,8 @@ public class DefaultHyphenator implements IHyphenator {
     public List<String> hyphenate(String word) {
 
         word = "_" + word + "_";
-        String lowercase = word.toLowerCase();
+        Locale locale = Locale.getDefault();
+        String lowercase = word.toLowerCase(locale);
 
         int wordLength = lowercase.length();
 
@@ -169,7 +171,7 @@ public class DefaultHyphenator implements IHyphenator {
             }
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         int start = 1;
         for (int i = 1; i < wordLength - 1; i++) {
             if (i > this.leftMin && i < (wordLength - this.rightMin) && points[i] % 2 > 0) {
@@ -284,7 +286,7 @@ public class DefaultHyphenator implements IHyphenator {
     }
 
     private class TrieNode {
-        Map<Integer, TrieNode> codePoint = new HashMap<Integer,TrieNode>();
+        Map<Integer, TrieNode> codePoint = new HashMap<>();
         int[] points;
     }
 }

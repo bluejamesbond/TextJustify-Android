@@ -16,7 +16,7 @@ import android.text.style.ReplacementSpan;
  * {@link android.text.style.ReplacementSpan}.
  *
  */
-public class Styled {
+public final class Styled {
     /**
      * Draws and/or measures a uniform run of text on a single line. No span of
      * interest should start or end in the middle of this run (if not
@@ -92,10 +92,8 @@ public class Styled {
                     workPaint.setColor(workPaint.bgColor);
                     workPaint.setStyle(Paint.Style.FILL);
 
-                    if (!haveWidth) {
-                        ret = workPaint.measureText(tmp, tmpstart, tmpend);
-                        haveWidth = true;
-                    }
+                    ret = workPaint.measureText(tmp, tmpstart, tmpend);
+                    haveWidth = true;
 
                     if (dir == Layout.DIR_RIGHT_TO_LEFT) {
                         canvas.drawRect(x - ret, top, x, bottom, workPaint);
@@ -110,7 +108,6 @@ public class Styled {
                 if (dir == Layout.DIR_RIGHT_TO_LEFT) {
                     if (!haveWidth) {
                         ret = workPaint.measureText(tmp, tmpstart, tmpend);
-                        haveWidth = true;
                     }
 
                     canvas.drawText(tmp, tmpstart, tmpend,
@@ -119,7 +116,6 @@ public class Styled {
                     if (needWidth) {
                         if (!haveWidth) {
                             ret = workPaint.measureText(tmp, tmpstart, tmpend);
-                            haveWidth = true;
                         }
                     }
 
@@ -127,9 +123,8 @@ public class Styled {
                             x, y + workPaint.baselineShift, workPaint);
                 }
             } else {
-                if (needWidth && !haveWidth) {
+                if (needWidth) {
                     ret = workPaint.measureText(tmp, tmpstart, tmpend);
-                    haveWidth = true;
                 }
             }
         } else {
@@ -170,6 +165,7 @@ public class Styled {
      * @param fmi       FontMetrics information; can be null
      * @return the actual number of widths returned
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static int getTextWidths(TextPaint paint,
                                     TextPaint workPaint,
                                     Spanned text, int start, int end,
@@ -233,6 +229,7 @@ public class Styled {
         // having both parameters is redundant and confusing.
 
         // fast path for unstyled text
+        float currentX = x;
         if (!(text instanceof Spanned)) {
             float ret = 0;
 
@@ -248,7 +245,7 @@ public class Styled {
 
                 if (canvas != null) {
                     canvas.drawText(tmp, 0, tmpend,
-                            x - ret, y, paint);
+                            currentX - ret, y, paint);
                 }
             } else {
                 if (needWidth) {
@@ -256,7 +253,7 @@ public class Styled {
                 }
 
                 if (canvas != null) {
-                    canvas.drawText(text, start, end, x, y, paint);
+                    canvas.drawText(text, start, end, currentX, y, paint);
                 }
             }
 
@@ -267,7 +264,7 @@ public class Styled {
             return ret * dir;   // Layout.DIR_RIGHT_TO_LEFT == -1
         }
 
-        float ox = x;
+        float ox = currentX;
         int minAscent = 0, maxDescent = 0, minTop = 0, maxBottom = 0;
 
         Spanned sp = (Spanned) text;
@@ -286,8 +283,8 @@ public class Styled {
             // XXX: if dir and runIsRtl were not the same, this would onDraw
             // spans in the wrong order, but no one appears to call it this
             // way.
-            x += drawUniformRun(canvas, sp, i, next, dir, runIsRtl,
-                    x, top, y, bottom, fmi, paint, workPaint,
+            currentX += drawUniformRun(canvas, sp, i, next, dir, runIsRtl,
+                    currentX, top, y, bottom, fmi, paint, workPaint,
                     needWidth || next != end);
 
             if (fmi != null) {
@@ -318,7 +315,7 @@ public class Styled {
             }
         }
 
-        return x - ox;
+        return currentX - ox;
     }
 
     /**
@@ -385,6 +382,7 @@ public class Styled {
      * @param needWidth If true, this method returns the width of drawn text
      * @return Width of the drawn text if needWidth is true
      */
+    @SuppressWarnings("unused")
     public static float drawText(Canvas canvas,
                                  CharSequence text, int start, int end,
                                  int direction,
@@ -393,14 +391,14 @@ public class Styled {
                                  TextPaint workPaint,
                                  boolean needWidth) {
         // For safety.
-        direction = direction >= 0 ? Layout.DIR_LEFT_TO_RIGHT
+        int safeDirection = direction >= 0 ? Layout.DIR_LEFT_TO_RIGHT
                 : Layout.DIR_RIGHT_TO_LEFT;
 
         // Hide runIsRtl parameter since it is meaningless for external
         // developers.
         // XXX: the runIsRtl probably ought to be the same as direction, then
         // this could onDraw rtl text.
-        return drawText(canvas, text, start, end, direction, false,
+        return drawText(canvas, text, start, end, safeDirection, false,
                 x, top, y, bottom, paint, workPaint, needWidth);
     }
 

@@ -48,6 +48,8 @@ import junit.framework.Assert;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Queue;
 
 public abstract class SpannableDocumentLayout extends IDocumentLayout {
 
@@ -60,7 +62,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
     private static final int TOKEN_LINE = 6;
     private static final int TOKEN_LENGTH = 7;
     private TextPaint workPaint;
-    private LinkedList<LeadingMarginSpanDrawParameters> mLeadMarginSpanDrawEvents;
+    private Queue<LeadingMarginSpanDrawParameters> mLeadMarginSpanDrawEvents;
     private int[] tokens;
 
     public SpannableDocumentLayout(Context context, TextPaint paint) {
@@ -99,32 +101,33 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
                                                 int start,
                                                 int end) {
 
+        int localStart = start;
         LinkedList<Integer> units = new LinkedList<>();
 
-        if (start >= end) {
+        if (localStart >= end) {
             return units;
         }
 
-        boolean charSearch = source.charAt(start) == ' ';
+        boolean charSearch = source.charAt(localStart) == ' ';
 
-        for (int i = start; i < end; i++) {
+        for (int i = localStart; i < end; i++) {
             // If the end add the word group
             if (i + 1 == end) {
                 units.add(i + 1);
-                start = i + 1;
+                localStart = i + 1;
             }
             // Search for the start of non-space
             else if (charSearch && source.charAt(i) != ' ') {
-                if ((i - start) > 0) {
+                if ((i - localStart) > 0) {
                     units.add(i);
                 }
-                start = i;
+                localStart = i;
                 charSearch = false;
             }
             // Search for the end of non-space
             else if (!charSearch && source.charAt(i) == ' ') {
                 units.add(i);
-                start = i + 1; // Skip the space
+                localStart = i + 1; // Skip the space
                 charSearch = true;
             }
         }
@@ -138,16 +141,17 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
      * as by {@link String#trim}.
      */
     protected int getTrimmedLength(CharSequence s, int start, int end) {
-        while (start < end && s.charAt(start) <= ' ') {
-            start++;
+        int localStart = start;
+        while (localStart < end && s.charAt(localStart) <= ' ') {
+            localStart++;
         }
 
         int endCpy = end;
-        while (endCpy > start && s.charAt(endCpy - 1) <= ' ') {
+        while (endCpy > localStart && s.charAt(endCpy - 1) <= ' ') {
             endCpy--;
         }
 
-        return endCpy - start;
+        return endCpy - localStart;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -185,7 +189,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         float lastDescent;
 
         boolean isParaStart = true;
-        boolean isReverse = params.reverse;
+        boolean isReverse;
 
         for (lineNumber = 0; lineNumber < lines; lineNumber++) {
 
@@ -338,7 +342,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
             }
 
             if (params.debugging) {
-                Console.log(String.format("Align: %s, X: %fpx, Y: %fpx, PWidth: %fpx",
+                Console.log(String.format(Locale.US, "Align: %s, X: %fpx, Y: %fpx, PWidth: %fpx",
                         lineTextAlignment, x, y, parentWidth));
             }
 
@@ -484,7 +488,7 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
         int startIndex = getTokenForVertical(scrollTop, TokenPosition.START_OF_LINE);
         int endIndex = getTokenForVertical(scrollBottom, TokenPosition.END_OF_LINE);
 
-        boolean defIsReverse = false;
+        final boolean defIsReverse = false;
 
         for (LeadingMarginSpanDrawParameters parameters : mLeadMarginSpanDrawEvents) {
             // FIXME sort by Y and break out of loop
@@ -614,27 +618,27 @@ public abstract class SpannableDocumentLayout extends IDocumentLayout {
      * Class to handle onDrawLeadingSpanMargin
      */
 
-    private class LeadingMarginSpanDrawParameters {
+    private final class LeadingMarginSpanDrawParameters {
 
-        public int x;
-        public int top;
-        public int baseline;
-        public int bottom;
-        public int dir;
-        public int start;
-        public int end;
-        public boolean first;
-        public LeadingMarginSpan span;
+        int x;
+        int top;
+        int baseline;
+        int bottom;
+        int dir;
+        int start;
+        int end;
+        boolean first;
+        LeadingMarginSpan span;
 
-        public LeadingMarginSpanDrawParameters(LeadingMarginSpan span,
-                                               int x,
-                                               int dir,
-                                               int top,
-                                               int baseline,
-                                               int bottom,
-                                               int start,
-                                               int end,
-                                               boolean first) {
+        LeadingMarginSpanDrawParameters(LeadingMarginSpan span,
+                                        int x,
+                                        int dir,
+                                        int top,
+                                        int baseline,
+                                        int bottom,
+                                        int start,
+                                        int end,
+                                        boolean first) {
             this.span = span;
             this.x = x;
             this.dir = dir;

@@ -33,9 +33,9 @@ package com.bluejamesbond.text.style;
 public enum Direction {
     LEFT_TO_RIGHT(false), RIGHT_TO_LEFT(true);
 
-    private boolean flag;
+    private final boolean flag;
 
-    private Direction(boolean flag) {
+    Direction(boolean flag) {
         this.flag = flag;
     }
 

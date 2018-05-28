@@ -35,7 +35,7 @@ public enum TextAlignment {
 
     private final int mId;
 
-    private TextAlignment(int id) {
+    TextAlignment(int id) {
         mId = id;
     }
 

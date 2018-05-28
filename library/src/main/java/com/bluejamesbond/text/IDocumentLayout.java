@@ -101,13 +101,13 @@ public abstract class IDocumentLayout {
     }
 
     public void setText(CharSequence text) {
-        text = text == null ? new SpannableString("") : new SpannableString(text);
+        CharSequence spannableString = text == null ? new SpannableString("") : new SpannableString(text);
 
-        if (this.text.equals(text)) {
+        if (this.text.equals(spannableString)) {
             return;
         }
 
-        this.text = text;
+        this.text = spannableString;
         this.textChange = true;
 
         this.tokensCount = 0;
@@ -178,20 +178,22 @@ public abstract class IDocumentLayout {
 
     public abstract void onTextChange();
 
-    public static enum TokenPosition {
+    public enum TokenPosition {
         START_OF_LINE, END_OF_LINE
     }
 
-    public static interface IProgress<T> {
-        public void onUpdate(T val);
+    public interface IProgress<T> {
+        void onUpdate(T val);
     }
 
-    public static interface ICancel<T> {
-        public T isCancelled();
+    public interface ICancel<T> {
+        T isCancelled();
     }
 
     public class LayoutParams {
 
+        public static final float DEFAULT_PARENT_WIDTH = 800.0f;
+        public static final int DEFAULT_TEXT_SIZE = 14;
         /**
          * All the customizable parameters
          */
@@ -200,7 +202,7 @@ public abstract class IDocumentLayout {
         protected Float insetPaddingTop = 0.0f;
         protected Float insetPaddingBottom = 0.0f;
         protected Float insetPaddingRight = 0.0f;
-        protected Float parentWidth = 800.0f;
+        protected Float parentWidth = DEFAULT_PARENT_WIDTH;
         protected Float offsetX = 0.0f;
         protected Float offsetY = 0.0f;
 
@@ -219,7 +221,7 @@ public abstract class IDocumentLayout {
         protected Boolean textStrikeThru = false;
         protected Boolean textFakeBold = false;
         protected Typeface textTypeface = Typeface.DEFAULT;
-        protected Float rawTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, displayMetrics);
+        protected Float rawTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, DEFAULT_TEXT_SIZE, displayMetrics);
         protected Integer textColor = Color.BLACK;
         protected Integer textLinkColor = Color.parseColor("#ff05c5cf");
 

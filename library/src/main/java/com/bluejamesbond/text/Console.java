@@ -30,7 +30,7 @@ package com.bluejamesbond.text;
  */
 
 @SuppressWarnings("unused")
-public class Console {
+public final class Console {
 
     public static void log(String tag, String s) {
         android.util.Log.d(tag, s);

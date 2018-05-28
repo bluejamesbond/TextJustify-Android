@@ -24,7 +24,8 @@ public class Pagination {
         this.pageHeight = pageHeight;
     }
 
-    private int addPageByTokenIndex(int pageFirstTokenIndex, int i) {
+    private int addPageByTokenIndex(int pageFirstTokenIndex, int index) {
+        int i = index;
         final int tokenLine = layout.getLineForToken(i);
         while (i < layout.getTokensCount() && layout.getLineForToken(i) == tokenLine) {
             i++;

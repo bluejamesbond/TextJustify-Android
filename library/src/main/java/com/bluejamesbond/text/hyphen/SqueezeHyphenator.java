@@ -32,7 +32,7 @@ package com.bluejamesbond.text.hyphen;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqueezeHyphenator implements IHyphenator {
+public final class SqueezeHyphenator implements IHyphenator {
 
     private static SqueezeHyphenator squeezeHyphenator;
 
@@ -50,7 +50,7 @@ public class SqueezeHyphenator implements IHyphenator {
     @Override
     public List<String> hyphenate(String word) {
 
-        List<String> broken = new ArrayList<String>();
+        List<String> broken = new ArrayList<>();
         int len = word.length() - 1, i;
 
         for (i = 0; i < len; i += 2) {

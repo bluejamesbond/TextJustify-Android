@@ -69,18 +69,17 @@ public class DocumentView extends ScrollView {
     private static final ITween LINEAR_EASE_IN;
 
     private static final Object eglBitmapHeightLock;
+    public static final int DEFAULT_FADE_IN_DURATION = 250;
+    public static final int DEFAULT_FADE_IN_ANIMATION_STEP_DELAY = 35;
+    public static final int DEFAULT_TEXT_SIZE = 34;
+    public static final int TRANSPARENT_ALPHA = 255;
     private static int eglBitmapHeight;
     protected ILayoutProgressListener layoutProgressListener;
 
     static {
         eglBitmapHeightLock = new Object();
         eglBitmapHeight = -1;
-        LINEAR_EASE_IN = new ITween() {
-            @Override
-            public float get(float t, float b, float c, float d) {
-                return c * t / d + b;
-            }
-        };
+        LINEAR_EASE_IN = new LinearEasyIn();
     }
 
     private IDocumentLayout layout;
@@ -88,8 +87,8 @@ public class DocumentView extends ScrollView {
     private TextPaint cachePaint;
     private View viewportView;
     private ITween fadeInTween;
-    private int fadeInDuration = 250;
-    private int fadeInAnimationStepDelay = 35;
+    private int fadeInDuration = DEFAULT_FADE_IN_DURATION;
+    private int fadeInAnimationStepDelay = DEFAULT_FADE_IN_ANIMATION_STEP_DELAY;
     private volatile MeasureTask measureTask;
     private volatile MeasureTaskState measureState;
     private int minimumHeight;
@@ -394,7 +393,7 @@ public class DocumentView extends ScrollView {
 
     protected void initPaint(Paint paint) {
         paint.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-        paint.setTextSize(34);
+        paint.setTextSize(DEFAULT_TEXT_SIZE);
         paint.setAntiAlias(true);
     }
 
@@ -453,33 +452,7 @@ public class DocumentView extends ScrollView {
     }
 
     public void setProgressBar(final int progressBarId) {
-        setOnLayoutProgressListener(new DocumentView.ILayoutProgressListener() {
-
-            private ProgressBar progressBar;
-
-            @Override
-            public void onCancelled() {
-                progressBar.setProgress(progressBar.getMax());
-                progressBar = null;
-            }
-
-            @Override
-            public void onFinish() {
-                progressBar.setProgress(progressBar.getMax());
-                progressBar = null;
-            }
-
-            @Override
-            public void onStart() {
-                progressBar = (ProgressBar) ((Activity) getContext()).getWindow().getDecorView().findViewById(progressBarId);
-                progressBar.setProgress(0);
-            }
-
-            @Override
-            public void onProgressUpdate(float progress) {
-                progressBar.setProgress((int) (progress * (float) progressBar.getMax()));
-            }
-        });
+        setOnLayoutProgressListener(new OnLayoutProgressListener(progressBarId));
     }
 
     public void setOnLayoutProgressListener(ILayoutProgressListener listener) {
@@ -566,27 +539,7 @@ public class DocumentView extends ScrollView {
     }
 
     public void setProgressBar(final ProgressBar progressBar) {
-        setOnLayoutProgressListener(new DocumentView.ILayoutProgressListener() {
-            @Override
-            public void onCancelled() {
-                progressBar.setProgress(progressBar.getMax());
-            }
-
-            @Override
-            public void onFinish() {
-                progressBar.setProgress(progressBar.getMax());
-            }
-
-            @Override
-            public void onStart() {
-                progressBar.setProgress(0);
-            }
-
-            @Override
-            public void onProgressUpdate(float progress) {
-                progressBar.setProgress((int) (progress * (float) progressBar.getMax()));
-            }
-        });
+        setOnLayoutProgressListener(new OnLayoutProgressListener(progressBar));
     }
 
     @Override
@@ -755,7 +708,7 @@ public class DocumentView extends ScrollView {
             paint.setAlpha(cache.getAlpha());
             canvas.drawBitmap(cache.getBitmap(), 0, y, paint);
             paint.setAlpha(lastAlpha);
-            return cache.getAlpha() < 255; // return true to invoke postInvalidateDelayed()
+            return cache.getAlpha() < TRANSPARENT_ALPHA; // return true to invoke postInvalidateDelayed()
         }
 
         return false;
@@ -836,6 +789,13 @@ public class DocumentView extends ScrollView {
         float get(float t, float b, float c, float d);
     }
 
+    private static class LinearEasyIn implements ITween {
+        @Override
+        public float get(float t, float b, float c, float d) {
+            return c * t / d + b;
+        }
+    }
+
     @SuppressLint("StaticFieldLeak")
     public class MeasureTask extends AsyncTask<Void, Float, Boolean> {
 
@@ -912,7 +872,7 @@ public class DocumentView extends ScrollView {
         }
     }
 
-    private class CacheBitmap {
+    private final class CacheBitmap {
 
         private long drawFadeInStartTime;
         private Bitmap bitmap;
@@ -921,17 +881,17 @@ public class DocumentView extends ScrollView {
         private volatile CacheDrawTask drawTask;
         private volatile int alpha;
 
-        public CacheBitmap(int w, int h, Bitmap.Config config) {
+        CacheBitmap(int w, int h, Bitmap.Config config) {
             bitmap = Bitmap.createBitmap(w, h, config);
             start = -1;
             drawCompleted = false;
         }
 
-        public int getAlpha() {
+        int getAlpha() {
             return (int) Math.min(fadeInTween.get(System.currentTimeMillis() - drawFadeInStartTime, 0, 255f, fadeInDuration), 255f);
         }
 
-        public void drawInBackground(Runnable runnable) {
+        void drawInBackground(Runnable runnable) {
             if (drawTask != null) {
                 drawTask.cancel(true);
                 drawTask = null;
@@ -951,19 +911,19 @@ public class DocumentView extends ScrollView {
             this.bitmap = bitmap;
         }
 
-        public int getStart() {
+        int getStart() {
             return start;
         }
 
-        public void setStart(int start) {
+        void setStart(int start) {
             this.start = start;
         }
 
-        public boolean isReady() {
+        boolean isReady() {
             return drawCompleted;
         }
 
-        public void recycle() {
+        void recycle() {
             if (drawTask != null) {
                 drawTask.cancel(true);
                 drawTask = null;
@@ -1001,6 +961,45 @@ public class DocumentView extends ScrollView {
                 drawCompleted = true;
                 invalidate();
             }
+        }
+    }
+
+    private final class OnLayoutProgressListener implements ILayoutProgressListener {
+
+        private int progressBarId;
+        private ProgressBar progressBar;
+
+        private OnLayoutProgressListener(final int progressBarId) {
+            this.progressBarId = progressBarId;
+        }
+
+        private OnLayoutProgressListener(final ProgressBar progressBar) {
+            this.progressBar = progressBar;
+        }
+
+        @Override
+        public void onCancelled() {
+            progressBar.setProgress(progressBar.getMax());
+            progressBar = null;
+        }
+
+        @Override
+        public void onFinish() {
+            progressBar.setProgress(progressBar.getMax());
+            progressBar = null;
+        }
+
+        @Override
+        public void onStart() {
+            if (progressBar == null) {
+                progressBar = (ProgressBar) ((Activity) getContext()).getWindow().getDecorView().findViewById(progressBarId);
+            }
+            progressBar.setProgress(0);
+        }
+
+        @Override
+        public void onProgressUpdate(float progress) {
+            progressBar.setProgress((int) (progress * (float) progressBar.getMax()));
         }
     }
 }

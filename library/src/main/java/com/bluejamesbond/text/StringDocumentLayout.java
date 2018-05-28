@@ -41,6 +41,7 @@ import java.util.ListIterator;
 @SuppressWarnings("unused")
 public abstract class StringDocumentLayout extends IDocumentLayout {
 
+    public static final int EXTRA_TOKENS_TO_DRAW = 25;
     // Parsing objects
     private Token[] tokens;
     private ConcurrentModifiableLinkedList<String> chunks;
@@ -236,7 +237,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         int tokenStart = getTokenForVertical(startTop, TokenPosition.START_OF_LINE);
         int tokenEnd = getTokenForVertical(startBottom, TokenPosition.END_OF_LINE);
 
-        for (int i = Math.max(0, tokenStart - 25); i < tokenEnd + 25 && i < tokens.length; i++) {
+        for (int i = Math.max(0, tokenStart - EXTRA_TOKENS_TO_DRAW); i < tokenEnd + EXTRA_TOKENS_TO_DRAW && i < tokens.length; i++) {
             Token token = tokens[i];
             token.draw(canvas, -startTop, paint, params);
             if (params.debugging) {
@@ -387,16 +388,17 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
      * as by {@link String#trim}.
      */
     protected int getTrimmedLength(CharSequence s, int start, int end) {
-        while (start < end && s.charAt(start) <= ' ') {
-            start++;
+        int localStart = start;
+        while (localStart < end && s.charAt(localStart) <= ' ') {
+            localStart++;
         }
 
         int endCpy = end;
-        while (endCpy > start && s.charAt(endCpy - 1) <= ' ') {
+        while (endCpy > localStart && s.charAt(endCpy - 1) <= ' ') {
             endCpy--;
         }
 
-        return endCpy - start;
+        return endCpy - localStart;
     }
 
     /**
@@ -405,6 +407,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
     private LineAnalysis fit(ListIterator<Unit> iterator, int startIndex, float spaceOffset,
                              float availableWidth) {
 
+        float localAvailableWidth = availableWidth;
         int i = startIndex;
 
         // Greedy search to see if the word
@@ -415,7 +418,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
             Unit unit = iterator.next();
             String word = unit.unit;
             float wordWidth = paint.measureText(word);
-            float remainingWidth = availableWidth - wordWidth;
+            float remainingWidth = localAvailableWidth - wordWidth;
 
             // Word does not fit in line
             if (remainingWidth < 0 && word.trim().length() != 0) {
@@ -442,7 +445,7 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
                                 .measureText(formattedPartial);
 
                         // See if the partial fits
-                        if (availableWidth - formattedPartialWidth > 0) {
+                        if (localAvailableWidth - formattedPartialWidth > 0) {
                             lastFormattedPartial = formattedPartial;
                             lastFormattedPartialWidth = formattedPartialWidth;
                             lastConcatPartial = concatPartial;
@@ -456,11 +459,11 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
 
                                 unit.unit = lastFormattedPartial;
                                 iterator.add(new Unit(word.substring(lastConcatPartial.length())));
-                                availableWidth -= lastFormattedPartialWidth;
+                                localAvailableWidth -= lastFormattedPartialWidth;
 
                                 iterator.previous();
 
-                                return new LineAnalysis(startIndex, i + 1, availableWidth);
+                                return new LineAnalysis(startIndex, i + 1, localAvailableWidth);
                             }
                         }
                     }
@@ -469,17 +472,17 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
                 // Redo this word on the next run
                 iterator.previous();
 
-                return new LineAnalysis(startIndex, i, availableWidth + spaceOffset);
+                return new LineAnalysis(startIndex, i, localAvailableWidth + spaceOffset);
 
             }
             // Word fits in the line
             else {
 
-                availableWidth -= wordWidth + spaceOffset;
+                localAvailableWidth -= wordWidth + spaceOffset;
 
                 // NO remaining space
                 if (remainingWidth == 0) {
-                    return new LineAnalysis(startIndex, i + 1, availableWidth
+                    return new LineAnalysis(startIndex, i + 1, localAvailableWidth
                             + spaceOffset);
                 }
             }
@@ -488,15 +491,15 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
             i++;
         }
 
-        return new LineAnalysis(startIndex, i, availableWidth + spaceOffset);
+        return new LineAnalysis(startIndex, i, localAvailableWidth + spaceOffset);
     }
 
     private static abstract class Token {
 
-        public int lineNumber;
-        public float y;
+        int lineNumber;
+        float y;
 
-        public Token(int lineNumber, float y) {
+        Token(int lineNumber, float y) {
             this.lineNumber = lineNumber;
             this.y = y;
         }
@@ -514,15 +517,15 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
 
     private static class Unit extends Token {
 
-        public float x;
-        public String unit;
+        float x;
+        String unit;
 
-        public Unit(String unit) {
+        Unit(String unit) {
             super(0, 0);
             this.unit = unit;
         }
 
-        public Unit(int lineNumber, float x, float y, String unit) {
+        Unit(int lineNumber, float x, float y, String unit) {
             super(lineNumber, y);
             this.x = x;
             this.unit = unit;
@@ -539,8 +542,8 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         }
     }
 
-    private static class LineBreak extends Token {
-        public LineBreak(int lineNumber, float y) {
+    private final static class LineBreak extends Token {
+        LineBreak(int lineNumber, float y) {
             super(lineNumber, y);
         }
 
@@ -554,15 +557,15 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
         }
     }
 
-    private static class SingleLine extends Unit {
-        public SingleLine(int lineNumber, float x, float y, String unit) {
+    private final static class SingleLine extends Unit {
+        SingleLine(int lineNumber, float x, float y, String unit) {
             super(lineNumber, x, y, unit);
         }
     }
 
     @SuppressWarnings("serial")
     class PlainDocumentException extends Exception {
-        public PlainDocumentException(String message) {
+        PlainDocumentException(String message) {
             super(message);
         }
     }
@@ -572,13 +575,13 @@ public abstract class StringDocumentLayout extends IDocumentLayout {
      * fit as many words as possible into one line
      */
 
-    private class LineAnalysis {
+    private final class LineAnalysis {
 
-        public int start;
-        public int end;
-        public float remainWidth;
+        int start;
+        int end;
+        float remainWidth;
 
-        public LineAnalysis(int start, int end, float remainWidth) {
+        LineAnalysis(int start, int end, float remainWidth) {
             this.start = start;
             this.end = end;
             this.remainWidth = remainWidth;
