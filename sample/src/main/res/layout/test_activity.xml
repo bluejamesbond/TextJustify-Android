@@ -52,7 +52,7 @@
             android:padding="20dp"
             android:text="@string/titlebar"
             android:textColor="@android:color/white"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="bold"/>
     </RelativeLayout>
 
@@ -76,8 +76,9 @@
             android:padding="10dp"
             android:text="@string/debug_button"
             android:textColor="#aaaaaa"
-            android:textSize="13dp"
-            android:textStyle="bold"/>
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/cacheButton"
@@ -91,14 +92,15 @@
             android:padding="10dp"
             android:text="@string/cache_button"
             android:textColor="#aaaaaa"
-            android:textSize="13dp"
-            android:textStyle="bold"/>
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:focusable="true" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/articleList"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"/>
 

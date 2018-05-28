@@ -40,14 +40,16 @@ import android.text.style.LeadingMarginSpan;
 public class MyQuoteSpan implements LeadingMarginSpan, ParcelableSpan {
 
     private final static int QUOTE_SPAN = 9;
+    private static final int DEFAULT_GAP_WIDTH = 30;
+    private static final int DEFAULT_COLOR = 0xff0000ff;
 
     private int mStripeWidth = 2;
-    private int mGapWidth = 30;
+    private int mGapWidth = DEFAULT_GAP_WIDTH;
     private int mColor;
 
     public MyQuoteSpan() {
         super();
-        mColor = 0xff0000ff;
+        mColor = DEFAULT_COLOR;
     }
 
     public MyQuoteSpan(int color) {

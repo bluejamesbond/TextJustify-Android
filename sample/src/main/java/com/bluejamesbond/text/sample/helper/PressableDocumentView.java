@@ -32,10 +32,6 @@ package com.bluejamesbond.text.sample.helper;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.LinearLayout;
 
 import com.bluejamesbond.text.DocumentView;
 import com.bluejamesbond.text.hyphen.SqueezeHyphenator;

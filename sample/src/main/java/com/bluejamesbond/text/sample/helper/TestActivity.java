@@ -29,6 +29,7 @@ package com.bluejamesbond.text.sample.helper;
  * Date: 1/27/15 3:35 AM
  */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -43,8 +44,17 @@ import com.bluejamesbond.text.DocumentView;
 import com.bluejamesbond.text.sample.R;
 import com.bluejamesbond.text.style.TextAlignment;
 
+@SuppressLint("Registered")
 public class TestActivity extends Activity {
 
+    public static final int TEXT_SIZE = 12;
+    public static final float INSET_PADDING_LEFT = 30f;
+    public static final float INSET_PADDING_RIGHT = 30f;
+    public static final float INSET_PADDING_TOP = 30f;
+    public static final float INSET_PADDING_BOTTOM = 30f;
+    public static final float LINE_HEIGHT_MULTIPLIER = 1f;
+    public static final int FADE_IN_DURATION = 800;
+    public static final int FADE_IN_ANIMATION_STEP_DELAY = 30;
     public String testName;
     private boolean debugging = false;
     private int cacheConfig = 0;
@@ -70,27 +80,22 @@ public class TestActivity extends Activity {
 
     public DocumentView addDocumentView(CharSequence article, int type, boolean rtl) {
         final DocumentView documentView = new DocumentView(this, type);
-        documentView.getDocumentLayoutParams().setTextColor(0xffffffff);
+        documentView.getDocumentLayoutParams().setTextColor(R.color.black);
         documentView.getDocumentLayoutParams().setTextTypeface(Typeface.DEFAULT);
-        documentView.getDocumentLayoutParams().setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        documentView.getDocumentLayoutParams().setTextSize(TypedValue.COMPLEX_UNIT_SP, TEXT_SIZE);
         documentView.getDocumentLayoutParams().setTextAlignment(TextAlignment.JUSTIFIED);
-        documentView.getDocumentLayoutParams().setInsetPaddingLeft(30f);
-        documentView.getDocumentLayoutParams().setInsetPaddingRight(30f);
-        documentView.getDocumentLayoutParams().setInsetPaddingTop(30f);
-        documentView.getDocumentLayoutParams().setInsetPaddingBottom(30f);
-        documentView.getDocumentLayoutParams().setLineHeightMultiplier(1f);
+        documentView.getDocumentLayoutParams().setInsetPaddingLeft(INSET_PADDING_LEFT);
+        documentView.getDocumentLayoutParams().setInsetPaddingRight(INSET_PADDING_RIGHT);
+        documentView.getDocumentLayoutParams().setInsetPaddingTop(INSET_PADDING_TOP);
+        documentView.getDocumentLayoutParams().setInsetPaddingBottom(INSET_PADDING_BOTTOM);
+        documentView.getDocumentLayoutParams().setLineHeightMultiplier(LINE_HEIGHT_MULTIPLIER);
         documentView.getDocumentLayoutParams().setReverse(rtl);
         documentView.getDocumentLayoutParams().setDebugging(debugging);
         documentView.setText(article);
         documentView.setProgressBar((ProgressBar) findViewById(R.id.progressBar));
-        documentView.setFadeInDuration(800);
-        documentView.setFadeInAnimationStepDelay(30);
-        documentView.setFadeInTween(new DocumentView.ITween() {
-            @Override
-            public float get(float t, float b, float c, float d) {
-                return c * (t /= d) * t * t + b;
-            }
-        });
+        documentView.setFadeInDuration(FADE_IN_DURATION);
+        documentView.setFadeInAnimationStepDelay(FADE_IN_ANIMATION_STEP_DELAY);
+        documentView.setFadeInTween(new FadeInAnymation());
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -106,14 +111,15 @@ public class TestActivity extends Activity {
         cacheConfig = documentView.getCacheConfig().getId();
 
         final TextView debugButton = (TextView) findViewById(R.id.debugButton);
+        final String debugText = String.format("%s DEBUG", debugging ? "DISABLE" : "ENABLE");
 
         if (debugButton != null) {
-            debugButton.setText((debugging ? "DISABLE" : "ENABLE") + " DEBUG");
+            debugButton.setText(debugText);
             debugButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     debugging = !debugging;
-                    debugButton.setText((debugging ? "DISABLE" : "ENABLE") + " DEBUG");
+                    debugButton.setText(debugText);
                     documentView.getDocumentLayoutParams().setDebugging(debugging);
                 }
             });
@@ -143,5 +149,12 @@ public class TestActivity extends Activity {
 
     public DocumentView addDocumentView(CharSequence article, int type) {
         return addDocumentView(article, type, false);
+    }
+
+    private static class FadeInAnymation implements DocumentView.ITween {
+        @Override
+        public float get(float t, float b, float c, float d) {
+            return c * (t /= d) * t * t + b;
+        }
     }
 }

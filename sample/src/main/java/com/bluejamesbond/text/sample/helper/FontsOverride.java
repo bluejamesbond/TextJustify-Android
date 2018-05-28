@@ -38,6 +38,7 @@ import android.graphics.Typeface;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings("unused")
 public final class FontsOverride {
 
     public static void setDefaultFont(Context context,

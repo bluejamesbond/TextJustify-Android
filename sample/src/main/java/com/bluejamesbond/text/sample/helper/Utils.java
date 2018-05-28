@@ -29,7 +29,7 @@ package com.bluejamesbond.text.sample.helper;
  * Date: 1/27/15 3:35 AM
  */
 
-public class Utils {
+public final class Utils {
 
     /*
      * Refer to http://stackoverflow.com/a/2560017/1100536
