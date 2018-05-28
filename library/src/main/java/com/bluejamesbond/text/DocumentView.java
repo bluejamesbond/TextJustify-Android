@@ -49,10 +49,12 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.bluejamesbond.text.style.TextAlignment;
+import com.bluejamesbond.text.util.Pagination;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -96,6 +98,26 @@ public class DocumentView extends ScrollView {
     private CacheBitmap cacheBitmapTop;
     private CacheBitmap cacheBitmapBottom;
     private boolean disallowInterceptTouch;
+    private boolean paginated;
+    private Pagination pagination;
+    private int currentPage;
+    private int startPage = 0;
+    ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener;
+    CharSequence text;
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setStartPage(int startPage) {
+        if (startPage == this.startPage) {
+            return;
+        }
+
+        currentPage = currentPage - this.startPage + startPage;
+        this.startPage = startPage;
+        paginate();
+    }
 
     public DocumentView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -166,6 +188,11 @@ public class DocumentView extends ScrollView {
         return Math.max(maximumTextureSize, GL_MAX_TEXTURE_SIZE);
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return !paginated && super.onInterceptTouchEvent(ev);
+    }
+
     public boolean isDisallowInterceptTouch() {
         return disallowInterceptTouch;
     }
@@ -208,6 +235,24 @@ public class DocumentView extends ScrollView {
         }
     }
 
+    public int turnPageBackward() {
+        currentPage = currentPage > startPage ? currentPage - 1 : currentPage;
+        turnPage(currentPage);
+        return currentPage;
+    }
+
+    public int turnPageForward() {
+        currentPage = currentPage < pagination.size() ? currentPage + 1 : currentPage;
+        turnPage(currentPage);
+        return currentPage;
+    }
+
+    public void turnPage(int page) {
+        if (startPage > page) throw new AssertionError();
+        currentPage = page;
+        paginate();
+    }
+
     public int getFadeInAnimationStepDelay() {
         return fadeInAnimationStepDelay;
     }
@@ -230,6 +275,14 @@ public class DocumentView extends ScrollView {
 
     public void setFadeInTween(ITween tween) {
         fadeInTween = tween;
+    }
+
+    private void paginate() {
+        final CharSequence text = pagination.get(currentPage);
+        if(text != null) {
+            layout.textChange = !layout.text.equals(text);
+            layout.text = text;
+        }
     }
 
     private void initDocumentView(Context context, AttributeSet attrs, int type) {
@@ -438,8 +491,8 @@ public class DocumentView extends ScrollView {
     }
 
     public void setText(CharSequence text) {
-        this.layout.setText(text);
-        requestLayout();
+        this.text = text;
+        layout.setText(text);
     }
 
     public StringDocumentLayout.LayoutParams getDocumentLayoutParams() {
@@ -462,6 +515,7 @@ public class DocumentView extends ScrollView {
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         final int width = MeasureSpec.getSize(widthMeasureSpec);
+        final int height = layout.getMeasuredHeight();
 
         switch (measureState) {
             case FINISH_AWAIT:
@@ -470,7 +524,7 @@ public class DocumentView extends ScrollView {
                 break;
             case FINISH:
                 viewportView.setMinimumWidth(width);
-                viewportView.setMinimumHeight(layout.getMeasuredHeight());
+                viewportView.setMinimumHeight(height);
                 measureState = MeasureTaskState.FINISH_AWAIT;
 
                 if(cacheConfig != CacheConfig.NO_CACHE){
@@ -483,7 +537,7 @@ public class DocumentView extends ScrollView {
                     measureTask.cancel(true);
                     measureTask = null;
                 }
-                measureTask = new MeasureTask(width);
+                measureTask = new MeasureTask(width, height);
                 measureTask.execute();
                 measureState = MeasureTaskState.AWAIT;
                 break;
@@ -492,10 +546,11 @@ public class DocumentView extends ScrollView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         requestDisallowInterceptTouchEvent(disallowInterceptTouch);
-        return super.onTouchEvent(ev);
+        return !paginated && super.onTouchEvent(ev);
     }
 
     @Override
@@ -544,6 +599,62 @@ public class DocumentView extends ScrollView {
         super.onConfigurationChanged(newConfig);
     }
 
+    public boolean isPaginated() {
+        return paginated;
+    }
+
+    public void setPaginated(final boolean paginated) {
+
+        if (this.paginated == paginated) {
+            return;
+        }
+
+        this.paginated = paginated;
+
+        if (paginated) {
+            pagination = new Pagination(layout, 0);
+
+            onGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+
+                    pagination.setPageHeight(((View) getParent()).getHeight());
+                }
+            };
+
+            getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
+            } else {
+                getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+            }
+
+            onGlobalLayoutListener = null;
+            pagination = null;
+        }
+
+        invalidate();
+    }
+
+    @Override
+    public void invalidate() {
+        onDocumentViewParamsChanged();
+        super.invalidate();
+    }
+
+    protected void onDocumentViewParamsChanged() {
+        setVerticalScrollBarEnabled(!paginated);
+    }
+
+    public int getPageCount() {
+        return pagination.size();
+    }
 
     @SuppressLint("DrawAllocation")
     @Override
@@ -617,7 +728,7 @@ public class DocumentView extends ScrollView {
             }
 
         } else {
-            drawLayout(canvas, 0, layout.getMeasuredHeight(), false);
+            drawLayout(canvas, 0, paginated ? pagination.getPageHeight() : layout.getMeasuredHeight(), false);
         }
     }
 
@@ -674,13 +785,13 @@ public class DocumentView extends ScrollView {
         }
     }
 
-    public static enum CacheConfig {
+    public enum CacheConfig {
         NO_CACHE(null, 0), AUTO_QUALITY(Config.ARGB_4444, 1), LOW_QUALITY(Config.RGB_565, 2), HIGH_QUALITY(Config.ARGB_8888, 3), GRAYSCALE(Config.ALPHA_8, 4);
 
         private final Config mConfig;
         private final int mId;
 
-        private CacheConfig(Config config, int id) {
+        CacheConfig(Config config, int id) {
             mConfig = config;
             mId = id;
         }
@@ -714,26 +825,24 @@ public class DocumentView extends ScrollView {
         AWAIT, FINISH, START, FINISH_AWAIT
     }
 
-    public static interface ILayoutProgressListener {
-        public void onCancelled();
-
-        public void onFinish();
-
-        public void onStart();
-
-        public void onProgressUpdate(float progress);
+    public interface ILayoutProgressListener {
+        void onCancelled();
+        void onFinish();
+        void onStart();
+        void onProgressUpdate(float progress);
     }
 
-    public static interface ITween {
-        public float get(float t, float b, float c, float d);
+    public interface ITween {
+        float get(float t, float b, float c, float d);
     }
 
+    @SuppressLint("StaticFieldLeak")
     public class MeasureTask extends AsyncTask<Void, Float, Boolean> {
 
         private IDocumentLayout.IProgress<Float> progress;
         private IDocumentLayout.ICancel<Boolean> cancelled;
 
-        public MeasureTask(float parentWidth) {
+        public MeasureTask(float parentWidth, int parentHeight) {
             layout.getLayoutParams().setParentWidth(parentWidth);
             progress = new IDocumentLayout.IProgress<Float>() {
                 @Override
@@ -754,7 +863,15 @@ public class DocumentView extends ScrollView {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                return layout.measure(progress, cancelled);
+                layout.textChange = text != layout.text;
+                layout.text = text;
+                boolean result = layout.measure(progress, cancelled);
+                if (result && paginated) {
+                    pagination = new Pagination(layout, ((View) getParent()).getMeasuredHeight());
+                    pagination.layout();
+                    paginate();
+                }
+                return result;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -767,7 +884,6 @@ public class DocumentView extends ScrollView {
                 layoutProgressListener.onStart();
             }
         }
-
 
         @Override
         protected void onPostExecute(Boolean done) {
@@ -860,6 +976,7 @@ public class DocumentView extends ScrollView {
             }
         }
 
+        @SuppressLint("StaticFieldLeak")
         public class CacheDrawTask extends AsyncTask<Void, Void, Void> {
             private Runnable drawRunnable;
 
